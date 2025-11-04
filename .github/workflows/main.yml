@@ -16,7 +16,7 @@ jobs:
       VM_HOST: ${{ secrets.VM_HOST }}
       VM_USER: ${{ secrets.VM_USER }}
       VM_SSH_PORT: ${{ secrets.VM_SSH_PORT || '22' }}
-      HOST_PORT: ${{ secrets.HOST_PORT || '80' }}
+      HOST_PORT: '80'
       CONTAINER_NAME: sampleapp
       IMAGE_TAG: cloud_infra/sampleapp:latest
       APP_DIR_REMOTE: /tmp/test # user-writable
@@ -58,7 +58,7 @@ jobs:
         with:
           host: ${{ env.VM_HOST }}
           username: ${{ env.VM_USER }}
-          port: ${{ env.HOST_PORT }}
+          port: ${{ env.VM_SSH_PORT }}
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             set -e
