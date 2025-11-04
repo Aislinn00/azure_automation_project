@@ -58,7 +58,7 @@ jobs:
         with:
           host: ${{ env.VM_HOST }}
           username: ${{ env.VM_USER }}
-          port: ${{ env.VM_SSH_PORT }}
+          port: ${{ env.HOST_PORT }}
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             set -e
