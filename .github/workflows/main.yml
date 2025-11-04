@@ -38,8 +38,8 @@ jobs:
           port: ${{ env.VM_SSH_PORT }}
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
-            mkdir -p "${APP_DIR_REMOTE}"
-            chown -R "${{ env.VM_USER }}:${{ env.VM_USER }}" "${APP_DIR_REMOTE}"
+            mkdir -p "${{ env.APP_DIR_REMOTE }}"
+            chown -R "${{ env.VM_USER }}:${{ env.VM_USER }}" "${{ env.APP_DIR_REMOTE }}"
 
       - name: Copy app files to VM
         uses: appleboy/scp-action@v0.1.7
