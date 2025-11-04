@@ -39,6 +39,7 @@ jobs:
           source: "app/*"
           target: "${{ env.APP_DIR_REMOTE }}"
           overwrite: true
+          key: ${{ secrets.VM_SSH_KEY }}
 
       - name: Build image & restart container on VM
         uses: appleboy/ssh-action@v1.2.0
@@ -46,6 +47,7 @@ jobs:
           host: ${{ env.VM_HOST }}
           username: ${{ env.VM_USER }}
           port: ${{ env.VM_SSH_PORT }}
+          key: ${{ secrets.VM_SSH_KEY }}
           script: |
             set -e
 
