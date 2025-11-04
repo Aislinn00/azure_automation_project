@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - "app/**"
-      - ".github/workflows/deploy.yml"
+      - ".github/workflows/main.yml"
   workflow_dispatch: {}
 
 jobs:
