@@ -62,17 +62,17 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             set -e
-            ls -la "${APP_DIR_REMOTE}"
-            cd "${APP_DIR_REMOTE}"
-            sudo docker build -t "${IMAGE_TAG}" .
-            if [ "$(sudo docker ps -q -f name=${CONTAINER_NAME})" ]; then
-              sudo docker stop "${CONTAINER_NAME}" && sudo docker rm "${CONTAINER_NAME}"
-            elif [ "$(sudo docker ps -aq -f name=${CONTAINER_NAME})" ]; then
-              sudo docker rm "${CONTAINER_NAME}"
+            ls -la "${{ env.APP_DIR_REMOTE }}"
+            cd "${{ env.APP_DIR_REMOTE }}"
+            sudo docker build -t "${{ env.IMAGE_TAG }}" .
+            if [ "$(sudo docker ps -q -f name=${{ env.CONTAINER_NAME }})" ]; then
+              sudo docker stop "${{ env.CONTAINER_NAME }}" && sudo docker rm "${{ env.CONTAINER_NAME }}"
+            elif [ "$(sudo docker ps -aq -f name=${{ env.CONTAINER_NAME }})" ]; then
+              sudo docker rm "${{ env.CONTAINER_NAME }}"
             fi
             sudo docker run -d \
-              --name "${CONTAINER_NAME}" \
+              --name "${{ env.CONTAINER_NAME }}" \
               --restart unless-stopped \
               -p "${HOST_PORT}:8080" \
               "${IMAGE_TAG}"
-            sudo docker ps --filter "name=${CONTAINER_NAME}"
+            sudo docker ps --filter "name=${{ env.CONTAINER_NAME }}"
