@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - "cloud_infra/ansible/app/*"
+      - "app/**"
       - ".github/workflows/main.yml"
   workflow_dispatch: {}
 
@@ -36,7 +36,7 @@ jobs:
           host: ${{ env.VM_HOST }}
           username: ${{ env.VM_USER }}
           port: ${{ env.VM_SSH_PORT }}
-          source: "../../cloud_infra/ansible/app/*"
+          source: "cloud_infra/ansible/app/*"
           target: "${{ env.APP_DIR_REMOTE }}"
           overwrite: true
           key: ${{ secrets.VM_SSH_KEY }}
