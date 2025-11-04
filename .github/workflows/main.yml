@@ -1,0 +1,78 @@
+name: Deploy to Azure VM (Docker)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "app/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      VM_HOST: ${{ secrets.VM_HOST }}
+      VM_USER: ${{ secrets.VM_USER }}
+      VM_SSH_PORT: ${{ secrets.VM_SSH_PORT || '22' }}
+      HOST_PORT: ${{ secrets.HOST_PORT || '80' }}
+      CONTAINER_NAME: ${{ 'sampleapp' }}
+      IMAGE_TAG: cloud_infra/sampleapp:${{ github.sha }}
+      APP_DIR_REMOTE: /tmp/sampleapp    # build dir on VM
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Start SSH agent & add key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VM_SSH_KEY }}
+
+      - name: Copy app files to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ env.VM_HOST }}
+          username: ${{ env.VM_USER }}
+          port: ${{ env.VM_SSH_PORT }}
+          source: "app/*"
+          target: "${{ env.APP_DIR_REMOTE }}"
+          overwrite: true
+
+      - name: Build image & restart container on VM
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ env.VM_HOST }}
+          username: ${{ env.VM_USER }}
+          port: ${{ env.VM_SSH_PORT }}
+          script: |
+            set -e
+
+            # ensure dir exists
+            sudo mkdir -p "${APP_DIR_REMOTE}"
+            sudo chown -R "${USER}:${USER}" "${APP_DIR_REMOTE}"
+
+            # list what we copied (debug)
+            ls -la "${APP_DIR_REMOTE}"
+
+            # build docker image on VM
+            cd "${APP_DIR_REMOTE}"
+            sudo docker build -t "${IMAGE_TAG}" .
+
+            # stop/remove old container if exists
+            if [ "$(sudo docker ps -q -f name=${CONTAINER_NAME})" ]; then
+              sudo docker stop "${CONTAINER_NAME}" && sudo docker rm "${CONTAINER_NAME}"
+            elif [ "$(sudo docker ps -aq -f name=${CONTAINER_NAME})" ]; then
+              sudo docker rm "${CONTAINER_NAME}"
+            fi
+
+            # run new container; map host port 80 -> container 8080
+            sudo docker run -d \
+              --name "${CONTAINER_NAME}" \
+              --restart unless-stopped \
+              -p "${HOST_PORT}:8080" \
+              "${IMAGE_TAG}"
+
+            # show container status
+            sudo docker ps --filter "name=${CONTAINER_NAME}"
