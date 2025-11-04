@@ -19,7 +19,7 @@ jobs:
       HOST_PORT: ${{ secrets.HOST_PORT || '80' }}
       CONTAINER_NAME: sampleapp
       IMAGE_TAG: cloud_infra/sampleapp:${{ github.sha }}
-      APP_DIR_REMOTE: /tmp/ # user-writable
+      APP_DIR_REMOTE: /tmp/test # user-writable
 
     steps:
       - name: Checkout repo
