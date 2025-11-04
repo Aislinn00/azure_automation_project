@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - "./cloud_infra/ansible/app/**"
+      - "cloud_infra/ansible/app/*"
       - ".github/workflows/main.yml"
   workflow_dispatch: {}
 
