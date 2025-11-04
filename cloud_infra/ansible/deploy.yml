@@ -1,0 +1,48 @@
+- name: Build and run Dockerized sample app
+  hosts: servers
+  become: true
+
+  vars:
+    app_src_dir: "/tmp/sampleapp"                # on the VM
+    app_image:   "cloud_infra/sampleapp:1.0"
+    host_port:   80
+    container_port: 8080
+    container_name: "sampleapp"
+    app_local_dir: "{{ playbook_dir }}/app"   # on your controller
+
+  tasks:
+    - name: Ensure build directory exists on VM
+      file:
+        path: "{{ app_src_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copy app files to VM
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ app_src_dir }}/{{ item.dest }}"
+        mode: "0644"
+      loop:
+        - { src: "{{ app_local_dir }}/app.py",          dest: "app.py" }
+        - { src: "{{ app_local_dir }}/requirements.txt", dest: "requirements.txt" }
+        - { src: "{{ app_local_dir }}/Dockerfile",      dest: "Dockerfile" }
+
+    - name: Build Docker image on VM
+      shell: docker build -t {{ app_image }} {{ app_src_dir }}
+
+    - name: Stop old container if running
+      shell: |
+        if [ "$(docker ps -q -f name={{ container_name }})" ]; then
+          docker stop {{ container_name }} && docker rm {{ container_name }}
+        elif [ "$(docker ps -aq -f name={{ container_name }})" ]; then
+          docker rm {{ container_name }}
+        fi
+      changed_when: false
+
+    - name: Run container (restart always)
+      shell: |
+        docker run -d \
+          --name {{ container_name }} \
+          --restart unless-stopped \
+          -p {{ host_port }}:{{ container_port }} \
+          {{ app_image }}

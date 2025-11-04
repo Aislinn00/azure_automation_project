@@ -1,0 +1,31 @@
+---
+- name: Install and enable Docker on Ubuntu
+  hosts: servers
+  become: true
+
+  vars:
+    docker_user: "ezzwk"   
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install Docker from Ubuntu repo (simple & stable)
+      apt:
+        name:
+          - docker.io
+        state: present
+
+    - name: Ensure Docker service is enabled and running
+      service:
+        name: docker
+        enabled: true
+        state: started
+
+    - name: Add user to docker group (so no sudo needed)
+      user:
+        name: "{{ docker_user }}"
+        groups: docker
+        append: true

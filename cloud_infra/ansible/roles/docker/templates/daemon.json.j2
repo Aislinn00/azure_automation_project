@@ -1,0 +1,9 @@
+{
+  "log-driver": "{{ docker_log_driver }}",
+  "log-opts": {
+    "max-size": "{{ docker_log_max_size }}"
+  }{% if docker_enable_ipv6 %},
+  "ipv6": true,
+  "fixed-cidr-v6": "fd00:dead:beef::/48"
+  {% endif %}
+}
