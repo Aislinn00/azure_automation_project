@@ -38,7 +38,7 @@ resource "azurerm_network_security_group" "nsg" {
   tags                = local.tags
 
 
-  # Allow SSH (Port 22) only from your IP
+  # Allow SSH (Port 22) only from the IP
   security_rule {
     name                       = "allow-ssh"
     priority                   = 1001
